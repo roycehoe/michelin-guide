@@ -1,8 +1,7 @@
-from scripts.michelin_guide_request import _get_michelin_guide_response
-from schemas.michelin_guide_response import MichelinGuideResponse
-from pydantic import BaseModel, Field
+from database import SessionLocal
+from crud import get_michelin_guide_data
 
 
-test = _get_michelin_guide_response(0)
-print(test[0])
-print(MichelinGuideResponse(**test[0]).dict())
+db = SessionLocal()
+test = get_michelin_guide_data(db)
+print(test)
