@@ -1,20 +1,40 @@
-import json
+from enum import Enum
 import pickle
-from schemas.michelin_guide_response import MichelinGuideResponse
+from schemas.michelin_data import MichelinData
+
+MICHELIN_DATA_PATH = "data.pkl"
 
 
-
-MICHELIN_DATA_PATH = 'data.pkl'
-
-# def get_michelin_data():
-#     with open(MICHELIN_DATA_PATH, "rb") as f:
-#         return pickle.load(f)
+def get_michelin_data():
+    with open(MICHELIN_DATA_PATH, "rb") as f:
+        return pickle.load(f)
 
 
-# michelin_data = [MichelinGuideResponse(**i).postcode for i in get_michelin_data()]
-# print(michelin_data)
+# print(get_michelin_data()[0])
 
-from scripts.michelin_guide_request import get_michelin_guide_request_data
 
-test = get_michelin_guide_request_data()[0]
-print(test.dict())
+michelin_data = [MichelinData(**i).postcode for i in get_michelin_data()]
+for i in michelin_data:
+    if i is None:
+        print("ooh no")
+
+current_page = 1
+
+
+class SortSequence(Enum):
+    ASCENDING = 1
+    DESCENDING = 2
+
+
+class SortOrder(Enum):
+    PRICE = 1
+    MICHELIN_STARS = 2
+
+
+# class Filter(Enum):
+#     PRICE = 1
+#     LOCATION = 2
+#     MICHELIN_STARS = 3
+
+
+URL = f"www.something.com/?p={current_page}&ss={SortSequence.ASCENDING}&so={SortOrder.PRICE}"

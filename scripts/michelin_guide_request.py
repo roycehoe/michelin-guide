@@ -1,11 +1,9 @@
 import requests
 import json
-from schemas.michelin_guide_request import MichelinGuideRequest
+from schemas.michelin_guide_response import MichelinGuideResponse
 
+DEFAULT_URL = "https://8nvhrd7onv-dsn.algolia.net/1/indexes/*/queries?x-algolia-agent=Algolia%20for%20JavaScript%20(3.35.1)%3B%20Browser%20(lite)%3B%20instantsearch.js%20(4.44.0)%3B%20JS%20Helper%20(3.10.0)&x-algolia-application-id=8NVHRD7ONV&x-algolia-api-key=3222e669cf890dc73fa5f38241117ba5"
 
-DEFAULT_URL = (
-    "https://8nvhrd7onv-dsn.algolia.net/1/indexes/*/queries?x-algolia-agent=Algolia%20for%20JavaScript%20(3.35.1)%3B%20Browser%20(lite)%3B%20instantsearch.js%20(4.44.0)%3B%20JS%20Helper%20(3.10.0)&x-algolia-application-id=8NVHRD7ONV&x-algolia-api-key=3222e669cf890dc73fa5f38241117ba5",
-)
 
 DEFAULT_HEADERS = {
     "Accept-Encoding": "gzip, deflate, br",
@@ -27,7 +25,7 @@ DEFAULT_HEADERS = {
 }
 
 
-def get_michelin_guide_request_body(page_number: int) -> json:
+def get_michelin_guide_request_body(page_number: int) -> str:
     body = {
         "requests": [
             {
@@ -45,7 +43,7 @@ def get_michelin_guide_request_body(page_number: int) -> json:
 
 def _get_michelin_guide_response(page_number: int) -> dict:
     response = requests.post(
-        "https://8nvhrd7onv-dsn.algolia.net/1/indexes/*/queries?x-algolia-agent=Algolia%20for%20JavaScript%20(3.35.1)%3B%20Browser%20(lite)%3B%20instantsearch.js%20(4.44.0)%3B%20JS%20Helper%20(3.10.0)&x-algolia-application-id=8NVHRD7ONV&x-algolia-api-key=3222e669cf890dc73fa5f38241117ba5",
+        DEFAULT_URL,
         headers=DEFAULT_HEADERS,
         data=get_michelin_guide_request_body(page_number),
     )
@@ -53,10 +51,11 @@ def _get_michelin_guide_response(page_number: int) -> dict:
     return data["hits"]
 
 
-def get_michelin_guide_request_data() -> list[MichelinGuideRequest]:
-    data = []
+def get_michelin_guide_request_data() -> list[MichelinGuideResponse]:
+    data: list[MichelinGuideResponse] = []
     for i in range(1000):
         michelin_guide_response = _get_michelin_guide_response(i)
         if not michelin_guide_response:
-            return [MichelinGuideRequest(**datapoint) for datapoint in data] 
+            return [MichelinGuideResponse(**datapoint) for datapoint in data]
         data = [*data, *michelin_guide_response]
+    return []
