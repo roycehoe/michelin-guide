@@ -1,6 +1,9 @@
+import pymongo
 from bson.objectid import ObjectId
 from pymongo import MongoClient
 from pymongo.collection import Collection
+
+from schemas.michelin_data import MichelinGuideDataRequest
 
 DATABASE_URL = "mongodb://localhost:27017/"
 MICHELIN_GUIDE_DATABASE_NAME = "michelin_guide_database"
@@ -18,7 +21,7 @@ class MongoDBMichelinGuideGetError(Exception):
     pass
 
 
-class MongoDBMichelinGuide:
+class MichelinGuideDb:
     def __init__(self, collection: Collection = MICHELIN_GUIDE_COLLECTION):
         self.collection = collection
 
@@ -36,18 +39,18 @@ class MongoDBMichelinGuide:
             f"Unable to create the following data in the Michelin Guide database: {michelin_guide_data}"
         )
 
-    def get(self, search_params: dict) -> list[dict]:
-        if retrieved_data := self.collection.find(search_params):
+    def get(
+        self,
+        search_params: MichelinGuideDataRequest = MichelinGuideDataRequest(),
+    ) -> list[dict]:
+        if (
+            retrieved_data := self.collection.find(search_params.filter)
+            .limit(search_params.limit)
+            .sort(search_params.sort)
+        ):
             return [data for data in retrieved_data]
         raise MongoDBMichelinGuideGetError(
             f"Unable to retrieve the following data in the Michelin Guide database with the following search params: {search_params}"
-        )
-
-    def get_all(self) -> list[dict]:
-        if retrieved_data := self.collection.find():
-            return [data for data in retrieved_data]
-        raise MongoDBMichelinGuideGetError(
-            f"No data found in the Michelin Guide database"
         )
 
     def update(self):

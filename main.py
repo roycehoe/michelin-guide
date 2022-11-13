@@ -1,40 +1,23 @@
-import pickle
-from enum import Enum
+from typing import Any
 
-from schemas.michelin_data import MichelinData
-from scripts.init_michelin_guide_data import init_michelin_guide_data
+from fastapi import FastAPI
 
-# MICHELIN_DATA_PATH = "data.pkl"
+from database import MichelinGuideDb
+from schemas.michelin_data import MichelinGuideDataRequest, MichelinGuideDataResponse
+from schemas.parsed_michelin_website_response import ParsedMichelinWebsiteResponse
+from scripts.init_data import init_michelin_guide_data
 
-
-# def get_michelin_data():
-#     with open(MICHELIN_DATA_PATH, "rb") as f:
-#         return pickle.load(f)
+app = FastAPI()
 
 
-# # print(get_michelin_data()[0])
+@app.post("/", response_model=list[MichelinGuideDataResponse])
+def get_michelin_data(
+    michelin_request: MichelinGuideDataRequest = MichelinGuideDataRequest(),
+):
+    data = MichelinGuideDb().get(michelin_request)
+    response = [MichelinGuideDataResponse(**i) for i in data]
+    return response
 
-
-# michelin_data = [MichelinData(**i).area_name for i in get_michelin_data()]
-# print(set(michelin_data))
-
-# current_page = 1
-
-
-# class SortSequence(Enum):
-#     ASCENDING = 1
-#     DESCENDING = 2
-
-
-# class SortOrder(Enum):
-#     PRICE = 1
-#     MICHELIN_STARS = 2
-
-
-# # class Filter(Enum):
-# #     PRICE = 1
-# #     LOCATION = 2
-# #     MICHELIN_STARS = 3
 
 if __name__ == "__main__":
     init_michelin_guide_data()

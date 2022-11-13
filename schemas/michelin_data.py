@@ -1,35 +1,42 @@
-from pydantic import BaseModel
-from typing import Optional, Literal, Union
+from typing import Literal, Union
 
-MichelinAward = Union[
-    Literal["BIB_GOURMAND", "ONE_STAR", "TWO_STARS", "THREE_STARS"], None
-]
+import pymongo
+from bson.objectid import ObjectId
+from pydantic import BaseModel, Field
 
+from schemas.parsed_michelin_website_response import ParsedMichelinWebsiteResponse
 
-class Coordinates(BaseModel):
-    lat: float
-    lng: float
+SortDirection = Literal[-1, 1]
 
 
-class MichelinData(BaseModel):
-    coordinates: Coordinates
-    area_name: Optional[str] = None
-    image: str
-    city: str
-    country: str
-    currency: str
-    currency_symbol: str
-    identifier: str
-    main_image: str
-    michelin_award: MichelinAward
-    name: str
-    price_category: Optional[int]
-    region: str
-    cuisines: list[str]
-    objectID: str
-    description: str
-    postcode: str
-    address: str
+class PyObjectId(ObjectId):
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, v):
+        if not ObjectId.is_valid(v):
+            raise ValueError("Invalid objectid")
+        return ObjectId(v)
+
+    @classmethod
+    def __modify_schema__(cls, field_schema):
+        field_schema.update(type="string")
+
+
+class MichelinGuideDataResponse(ParsedMichelinWebsiteResponse):
+    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
 
     class Config:
-        orm_mode = True
+        allow_population_by_field_name = True
+        arbitrary_types_allowed = True
+        json_encoders = {ObjectId: str}
+
+
+class MichelinGuideDataRequest(BaseModel):
+    filter: dict = {}  # {attribute_of_MichelinGuideDataResponse: filter_param}
+    sort: list[tuple[str, SortDirection]] = [
+        ("michelin_award_sort", pymongo.DESCENDING)
+    ]
+    limit: int = 0
