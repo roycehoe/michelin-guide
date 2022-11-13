@@ -1,8 +1,8 @@
-from typing import Any, Literal, Union
+from typing import Literal, Union
 
 import pymongo
 from bson.objectid import ObjectId
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, StrictInt, StrictStr
 
 from schemas.parsed_michelin_website_response import ParsedMichelinWebsiteResponse
 
@@ -61,8 +61,6 @@ class MichelinGuideResponse(ParsedMichelinWebsiteResponse):
 
 
 class MichelinGuideRequest(BaseModel):
-    filter: dict[
-        MichelinGuideKey, Union[int, str]
-    ] = {}  # {attribute_of_MichelinGuideDataResponse: filter_param}
+    filter: dict[MichelinGuideKey, Union[StrictInt, StrictStr]] = {}
     sort: list[tuple[MichelinGuideKey, SortDirection]] = DEFAULT_SORT
-    limit: int = 0
+    limit: int = 0  # Returns all data from database
