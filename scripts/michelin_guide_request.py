@@ -1,5 +1,7 @@
-import requests
 import json
+
+import requests
+
 from schemas.michelin_guide_response import MichelinGuideResponse
 
 DEFAULT_URL = "https://8nvhrd7onv-dsn.algolia.net/1/indexes/*/queries?x-algolia-agent=Algolia%20for%20JavaScript%20(3.35.1)%3B%20Browser%20(lite)%3B%20instantsearch.js%20(4.44.0)%3B%20JS%20Helper%20(3.10.0)&x-algolia-application-id=8NVHRD7ONV&x-algolia-api-key=3222e669cf890dc73fa5f38241117ba5"

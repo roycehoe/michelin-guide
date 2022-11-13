@@ -1,8 +1,8 @@
 import pickle
 from enum import Enum
 
-from database import init_michelin_guide_data
 from schemas.michelin_data import MichelinData
+from scripts.init_michelin_guide_data import init_michelin_guide_data
 
 # MICHELIN_DATA_PATH = "data.pkl"
 
