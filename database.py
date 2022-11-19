@@ -2,13 +2,15 @@ from typing import Union
 
 import pymongo
 from bson.objectid import ObjectId
+from dotenv import dotenv_values
 from pymongo import MongoClient
 from pymongo.collection import Collection
 
 from schemas.michelin_data import MichelinGuideRequest
 
-# DATABASE_URL = "mongodb://localhost:27017/"
-DATABASE_URL = "mongodb://localhost:27017/"
+IS_DEV = dotenv_values(".env").get("IS_DEV")
+
+DATABASE_URL = "mongodb://localhost:27017/" if IS_DEV else "mongodb://mongo:27017"
 MICHELIN_GUIDE_DATABASE_NAME = "michelin_guide_database"
 
 MONGO_DB_CLIENT = MongoClient(DATABASE_URL)

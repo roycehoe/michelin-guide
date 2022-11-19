@@ -8,7 +8,6 @@ from schemas.michelin_data import (
     MichelinGuideRequest,
     MichelinGuideResponse,
 )
-from scripts.init_data import init_michelin_guide_data
 
 app = FastAPI()
 
@@ -25,7 +24,3 @@ def get_michelin_data(
 def get_michelin_metadata(metadata_name: MichelinGuideKey):
     """Returns all unique values for the specified key"""
     return MichelinGuideDb().get_distinct(metadata_name)
-
-
-if __name__ == "__main__":
-    init_michelin_guide_data()
