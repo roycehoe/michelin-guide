@@ -1,6 +1,14 @@
-import requests
 import json
-from schemas.michelin_guide_response import MichelinGuideResponse
+from typing import Optional
+
+import requests
+
+from database import MichelinGuideDb
+from schemas.michelin_website_response import Cuisine, MichelinWebsiteResponse
+from schemas.parsed_michelin_website_response import (
+    Coordinates,
+    ParsedMichelinWebsiteResponse,
+)
 
 DEFAULT_URL = "https://8nvhrd7onv-dsn.algolia.net/1/indexes/*/queries?x-algolia-agent=Algolia%20for%20JavaScript%20(3.35.1)%3B%20Browser%20(lite)%3B%20instantsearch.js%20(4.44.0)%3B%20JS%20Helper%20(3.10.0)&x-algolia-application-id=8NVHRD7ONV&x-algolia-api-key=3222e669cf890dc73fa5f38241117ba5"
 
@@ -25,7 +33,7 @@ DEFAULT_HEADERS = {
 }
 
 
-def get_michelin_guide_request_body(page_number: int) -> str:
+def _get_michelin_guide_request_body(page_number: int) -> str:
     body = {
         "requests": [
             {
@@ -45,17 +53,75 @@ def _get_michelin_guide_response(page_number: int) -> dict:
     response = requests.post(
         DEFAULT_URL,
         headers=DEFAULT_HEADERS,
-        data=get_michelin_guide_request_body(page_number),
+        data=_get_michelin_guide_request_body(page_number),
     )
     data, _ = response.json()["results"]
     return data["hits"]
 
 
-def get_michelin_guide_request_data() -> list[MichelinGuideResponse]:
-    data: list[MichelinGuideResponse] = []
+def _get_michelin_guide_request_data() -> list[MichelinWebsiteResponse]:
+    data: list[MichelinWebsiteResponse] = []
     for i in range(1000):
         michelin_guide_response = _get_michelin_guide_response(i)
         if not michelin_guide_response:
-            return [MichelinGuideResponse(**datapoint) for datapoint in data]
+            return [MichelinWebsiteResponse(**datapoint) for datapoint in data]
         data = [*data, *michelin_guide_response]
     return []
+
+
+def _get_cuisines(cuisines: list[Cuisine]) -> list[str]:
+    return [cuisine.label for cuisine in cuisines]
+
+
+def _get_price_category(data: MichelinWebsiteResponse) -> Optional[int]:
+    try:
+        return int(data.price_category.code[-1])
+    except AttributeError:
+        return None
+
+
+def _get_parsed_michelin_data(
+    data: MichelinWebsiteResponse,
+) -> ParsedMichelinWebsiteResponse:
+    coordinates = Coordinates(lat=data.geoloc.lat, lng=data.geoloc.lng)
+    cuisines = _get_cuisines(data.cuisines)
+    price_category = _get_price_category(data)
+
+    return ParsedMichelinWebsiteResponse(
+        coordinates=coordinates,
+        area_name=data.area_name,
+        image=data.image,
+        city=data.city.name,
+        country=data.country.name,
+        currency=data.currency,
+        currency_symbol=data.currency_symbol,
+        identifier=data.identifier,
+        main_image=data.main_image.url,
+        michelin_award=data.michelin_award,
+        name=data.name,
+        price_category=price_category,
+        region=data.region.name,
+        cuisines=cuisines,
+        objectID=data.objectID,
+        description=data.snippet_result.main_desc.value,
+        postcode=data.highlight_result.postcode.value,
+        address=data.highlight_result.street.value,
+    )
+
+
+def init_michelin_guide_data() -> None:
+    michelin_guide_request_data = _get_michelin_guide_request_data()
+    parsed_michelin_guide_data = map(
+        _get_parsed_michelin_data, michelin_guide_request_data
+    )
+    MichelinGuideDb().create_all([data.dict() for data in parsed_michelin_guide_data])
+
+
+def is_michelin_guide_data_not_loaded() -> bool:
+    if MichelinGuideDb().get():
+        return False
+    return True
+
+
+if __name__ == "__main__":
+    init_michelin_guide_data()

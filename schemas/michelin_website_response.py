@@ -188,7 +188,7 @@ class HighlightResult(BaseModel):
     region_name: RegionName = None
 
 
-class MichelinGuideResponse(BaseModel):
+class MichelinWebsiteResponse(BaseModel):
     geoloc: Optional[Geoloc] = Field(default=None, alias="_geoloc")
     area_name: Optional[str] = None
     image: str

@@ -1,0 +1,15 @@
+{
+  "python.linting.flake8Enabled": true,
+  "python.linting.enabled": true,
+  "python.analysis.typeCheckingMode": "basic",
+  "python.linting.mypyEnabled": false,
+  "python.linting.banditEnabled": false,
+  "python.analysis.autoImportCompletions": true,
+  "editor.formatOnSave": true,
+  "python.formatting.provider": "black",
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": true
+  },
+  "python.linting.flake8Args": ["--ignore=E501"]
+  // --END Python linting rules
+}
