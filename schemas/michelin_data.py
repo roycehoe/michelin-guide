@@ -61,6 +61,6 @@ class MichelinGuideResponse(ParsedMichelinWebsiteResponse):
 
 
 class MichelinGuideRequest(BaseModel):
-    filter: dict[MichelinGuideKey, Union[StrictInt, StrictStr]] = {}
+    filter: dict[MichelinGuideKey, Union[StrictInt, StrictStr, None]] = {}
     sort: list[tuple[MichelinGuideKey, SortDirection]] = DEFAULT_SORT
     limit: int = 0  # Returns all data from database
