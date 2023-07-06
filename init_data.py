@@ -1,5 +1,6 @@
 import json
 from typing import Optional
+from pydantic import BaseModel
 
 import requests
 
@@ -59,9 +60,11 @@ def _get_michelin_guide_response(page_number: int) -> dict:
     return data["hits"]
 
 
-def _get_michelin_guide_request_data() -> list[MichelinWebsiteResponse]:
+def _get_michelin_guide_request_data(
+    request_limit: int = 1000,
+) -> list[MichelinWebsiteResponse]:
     data: list[MichelinWebsiteResponse] = []
-    for i in range(1000):
+    for i in range(request_limit):
         michelin_guide_response = _get_michelin_guide_response(i)
         if not michelin_guide_response:
             return [MichelinWebsiteResponse(**datapoint) for datapoint in data]
